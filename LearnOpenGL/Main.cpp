@@ -38,6 +38,13 @@ const char *fragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
 "void main()\n"
 "{\n"
+"   FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
+"}\n\0";
+
+const char *fragmentShaderSource1 = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
 "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
 
@@ -78,6 +85,10 @@ int main()
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
 
+	unsigned int fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, NULL);
+	glCompileShader(fragmentShader1);
+
 	// checking if our compilation above succeeded
 	// I'm too lazy to check if the second one succeeded, but I'm sure it would be similar
 	int success;
@@ -94,6 +105,11 @@ int main()
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
 
+	unsigned int shaderProgram1 = glCreateProgram();
+	glAttachShader(shaderProgram1, vertexShader);
+	glAttachShader(shaderProgram1, fragmentShader1);
+	glLinkProgram(shaderProgram1);
+
 	// checking if linking went well
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 	if (!success)
@@ -101,11 +117,10 @@ int main()
 		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 	}
 
-	// tell openGL to use the shaders that we've set up
-	glUseProgram(shaderProgram);
 	// we can now delete the shaders that we made
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+	glDeleteShader(fragmentShader1);
 
 	// generating VBO and VAO
 	unsigned int VBOQuiz1, VAOQuiz1;
@@ -146,6 +161,9 @@ int main()
 		// bind the VAO
 		glBindVertexArray(VAOQuiz1);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		// same as above
+		glUseProgram(shaderProgram1);
 		glBindVertexArray(VAOQuiz2);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
