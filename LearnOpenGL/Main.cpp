@@ -10,6 +10,15 @@ float verticesExampleTriangle[] = {
 	+0.0, +0.5, 0.0
 };
 
+float verticesQuizTriangle1[] = {
+	-0.75, -0.75, 0.0,
+	-0.50, -0.75, 0.0,
+	-0.50, +0.50, 0.0,
+	-0.8, 0.0, 0.0,
+	-0.1, +0.5, 0.0,
+	+0.8, 0.0, 0.0
+};
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
@@ -73,14 +82,6 @@ int main()
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	//vertex stuff
-	unsigned int VBOExampleTriangle;
-	glGenBuffers(1, &VBOExampleTriangle);
-	// bind buffer to Vertex Buffer Object
-	glBindBuffer(GL_ARRAY_BUFFER, VBOExampleTriangle);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesExampleTriangle),
-				verticesExampleTriangle, GL_STATIC_DRAW);
-
 	// compiling the vertex shader
 	unsigned int vertexShader;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -90,17 +91,6 @@ int main()
 	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
-
-	//EBO Example
-	unsigned int EBOExampleRectangle;
-	glGenBuffers(1, &EBOExampleRectangle);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOExampleRectangle);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesExampleRectangle),
-			indicesExampleRectangle, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOExampleRectangle);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	// checking if our compilation above succeeded
 	// I'm too lazy to check if the second one succeeded, but I'm sure it would be similar
@@ -131,63 +121,34 @@ int main()
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
+	// generating VBO and VAO
+	unsigned int VBOQuiz, VAOQuiz;
+	glGenBuffers(1, &VBOQuiz);
+	glGenVertexArrays(1, &VAOQuiz);
+
+	// bind VAO, set vertex buffers, configure vertex attributes
+	glBindVertexArray(VAOQuiz);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOQuiz);
+	// although the 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesQuizTriangle1), 
+				verticesQuizTriangle1, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	// 0. copy our vertices array in a buffer for OpenGL to use
-	glBindBuffer(GL_ARRAY_BUFFER, VBOExampleTriangle);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesExampleTriangle),
-			verticesExampleTriangle, GL_STATIC_DRAW);
-	// 1. then set the vertex attributes pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// 2. use our shader program when we want to render an object
-	glUseProgram(shaderProgram);
-
-	// setting up VAO
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-
-	// ..:: Initialization code (done once (unless your object frequently changes)) :: ..
-	// 1. bind Vertex Array Object
-	glBindVertexArray(VAO);
-	// 2. copy our vertices array in a buffer for OpenGL to use
-	glBindBuffer(GL_ARRAY_BUFFER, VBOExampleTriangle);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesExampleTriangle), verticesExampleTriangle, GL_STATIC_DRAW);
-	// 3. then set our vertex attributes pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindVertexArray(VAO);
-	// 2. copy our vertices array in a vertex buffer for OpenGL to use
-	glBindBuffer(GL_ARRAY_BUFFER, VBOExampleTriangle);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesExampleRectangle),
-		verticesExampleRectangle, GL_STATIC_DRAW);
-	// 3. copy our index array in a element buffer for OpenGL to use
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOExampleRectangle);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesExampleRectangle),
-		indicesExampleRectangle, GL_STATIC_DRAW);
-	// 4. then set the vertex attributes pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
+	// rendering loop
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
 
+		// setting up clear screen stuff
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// ..:: Drawing code (in render loop) :: ..
-		// 4. draw the object
+		// use the created shaders
 		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
+		// bind the VAO
+		glBindVertexArray(VAOQuiz);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
