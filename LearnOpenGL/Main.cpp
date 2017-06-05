@@ -4,16 +4,13 @@
 
 using namespace std;
 
-float verticesExampleTriangle[] = {
-	-0.5, -0.5, 0.0,
-	+0.5, -0.5, 0.0,
-	+0.0, +0.5, 0.0
-};
-
 float verticesQuizTriangle1[] = {
 	-0.75, -0.75, 0.0,
 	-0.50, -0.75, 0.0,
-	-0.50, +0.50, 0.0,
+	-0.50, +0.50, 0.0
+};
+
+float verticesQuizTriangle2[] = {
 	-0.8, 0.0, 0.0,
 	-0.1, +0.5, 0.0,
 	+0.8, 0.0, 0.0
@@ -43,17 +40,6 @@ const char *fragmentShaderSource = "#version 330 core\n"
 "{\n"
 "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
-
-float verticesExampleRectangle[] = {
-	0.5f,  0.5f, 0.0f,  // top right
-	0.5f, -0.5f, 0.0f,  // bottom right
-	-0.5f, -0.5f, 0.0f,  // bottom left
-	-0.5f,  0.5f, 0.0f   // top left 
-};
-unsigned int indicesExampleRectangle[] = {  // note that we start from 0!
-	0, 1, 3,   // first triangle
-	1, 2, 3    // second triangle
-};
 
 int main()
 {
@@ -122,18 +108,29 @@ int main()
 	glDeleteShader(fragmentShader);
 
 	// generating VBO and VAO
-	unsigned int VBOQuiz, VAOQuiz;
-	glGenBuffers(1, &VBOQuiz);
-	glGenVertexArrays(1, &VAOQuiz);
+	unsigned int VBOQuiz1, VAOQuiz1;
+	glGenBuffers(1, &VBOQuiz1);
+	glGenVertexArrays(1, &VAOQuiz1);
+
+	unsigned int VBOQuiz2, VAOQuiz2;
+	glGenBuffers(1, &VBOQuiz2);
+	glGenVertexArrays(1, &VAOQuiz2);
 
 	// bind VAO, set vertex buffers, configure vertex attributes
-	glBindVertexArray(VAOQuiz);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOQuiz);
-	// although the 
+	glBindVertexArray(VAOQuiz1);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOQuiz1);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesQuizTriangle1), 
-				verticesQuizTriangle1, GL_STATIC_DRAW);
+		verticesQuizTriangle1, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(VAOQuiz2);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOQuiz2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesQuizTriangle2),
+		verticesQuizTriangle2, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
 
 	// rendering loop
 	while (!glfwWindowShouldClose(window))
@@ -147,8 +144,10 @@ int main()
 		// use the created shaders
 		glUseProgram(shaderProgram);
 		// bind the VAO
-		glBindVertexArray(VAOQuiz);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(VAOQuiz1);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(VAOQuiz2);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
