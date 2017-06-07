@@ -29,9 +29,10 @@ void processInput(GLFWwindow* window)
 
 const char *vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
+"uniform float fOffset;\n"
 "void main()\n"
 "{\n"
-"   gl_Position = vec4(-aPos.x, -aPos.y, -aPos.z, 1.0);\n"
+"   gl_Position = vec4(-aPos.x + fOffset, -aPos.y, -aPos.z, 1.0);\n"
 "}\0";
 
 const char *fragmentShaderSource = "#version 330 core\n"
@@ -156,8 +157,12 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// get the location of our uniform in the GPU
+		int vertexOffsetLocation = glGetUniformLocation(shaderProgram, "fOffset");
 		// use the created shaders
 		glUseProgram(shaderProgram);
+		// set the value of the uniform
+		glUniform1f(vertexOffsetLocation, .3f); // just throwing in .5 as a random value
 		// bind the VAO
 		glBindVertexArray(VAOQuiz1);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
