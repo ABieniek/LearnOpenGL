@@ -1,20 +1,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "Shader.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 using namespace std;
-
-float verticesQuizTriangle1[] = {
-	-0.75, -0.75, 0.0,
-	-0.50, -0.75, 0.0,
-	-0.50, +0.50, 0.0
-};
-
-float verticesQuizTriangle2[] = {
-	-0.8, 0.0, 0.0,
-	-0.1, +0.5, 0.0,
-	+0.8, 0.0, 0.0
-};
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -27,33 +19,22 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 }
 
-const char *vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"uniform float fOffset;\n"
-"out vec3 positionsToColor;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(-aPos.x + fOffset, -aPos.y, -aPos.z, 1.0);\n"
-"	positionsToColor = vec3(-aPos.x, -aPos.y, -aPos.z);\n"
-"}\0";
+float verticesBox[] = {
+	// positions          // colors           // texture coords
+	0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+	0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+};
 
-const char *fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"in vec3 positionsToColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(positionsToColor.xyz, 1.0f);\n"
-"}\n\0";
-
-const char *fragmentShaderSource1 = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\n\0";
+unsigned int indicesBox[] = {
+	0, 1, 3,	// first triangle
+	1, 2, 3		// second triangle
+};
 
 int main()
 {
+	/*	WINDOW STUFF	*/
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -79,77 +60,79 @@ int main()
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// compiling the vertex shader
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
+	/*	SHADER STUFF	*/
+	Shader shaders("Shaders\\TexturesLesson.vs",
+		"Shaders\\TexturesLesson.fs");
 
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
+	unsigned int VBOBox, VAOBox, EBOBox;
+	glGenVertexArrays(1, &VAOBox);
+	glGenBuffers(1, &VBOBox);
+	glGenBuffers(1, &EBOBox);
+	glBindVertexArray(VAOBox);
 
-	unsigned int fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, NULL);
-	glCompileShader(fragmentShader1);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOBox);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesBox), verticesBox, GL_STATIC_DRAW);
 
-	// checking if our compilation above succeeded
-	// I'm too lazy to check if the second one succeeded, but I'm sure it would be similar
-	int success;
-	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
-	}
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOBox);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesBox), indicesBox, GL_STATIC_DRAW);
 
-	unsigned int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	unsigned int shaderProgram1 = glCreateProgram();
-	glAttachShader(shaderProgram1, vertexShader);
-	glAttachShader(shaderProgram1, fragmentShader1);
-	glLinkProgram(shaderProgram1);
-
-	// checking if linking went well
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-	}
-
-	// we can now delete the shaders that we made
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-	glDeleteShader(fragmentShader1);
-
-	// generating VBO and VAO
-	unsigned int VBOQuiz1, VAOQuiz1;
-	glGenBuffers(1, &VBOQuiz1);
-	glGenVertexArrays(1, &VAOQuiz1);
-
-	unsigned int VBOQuiz2, VAOQuiz2;
-	glGenBuffers(1, &VBOQuiz2);
-	glGenVertexArrays(1, &VAOQuiz2);
-
-	// bind VAO, set vertex buffers, configure vertex attributes
-	glBindVertexArray(VAOQuiz1);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOQuiz1);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesQuizTriangle1), 
-		verticesQuizTriangle1, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	//color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	// texture coord attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
-	glBindVertexArray(VAOQuiz2);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOQuiz2);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesQuizTriangle2),
-		verticesQuizTriangle2, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	/*	TEXTURE STUFF	*/
+	stbi_set_flip_vertically_on_load(true);
+	// box
+	unsigned int textureBox;
+	glGenTextures(1, &textureBox);
+	glBindTexture(GL_TEXTURE_2D, textureBox);
+	//set texture wrapping and filtering options of textureBox
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image, creat texture, generate mipmaps
+	int widthBox, heightBox, nrChannelsBox;
+	unsigned char *dataBox = stbi_load("Textures\\container.png", &widthBox, &heightBox, &nrChannelsBox, 0);
+	if (dataBox)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthBox, heightBox, 0, GL_RGB, GL_UNSIGNED_BYTE, dataBox);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+		std::cout << "Failed to load texture" << std::endl;
+	stbi_image_free(dataBox);
 
+	// face
+	unsigned int textureFace;
+	glGenTextures(1, &textureFace);
+	glBindTexture(GL_TEXTURE_2D, textureFace);
+	//set texture wrapping and filtering options of textureFace
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image, creat texture, generate mipmaps
+	int widthFace, heightFace, nrChannelsFace;
+	unsigned char *dataFace = stbi_load("Textures\\awesomeface.png", &widthFace, &heightFace, &nrChannelsFace, 0);
+	if (dataFace)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthFace, heightFace, 0, GL_RGBA, GL_UNSIGNED_BYTE, dataFace);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+		std::cout << "Failed to load texture" << std::endl;
+	stbi_image_free(dataFace);
+
+	shaders.use();
+	shaders.setInt("ourTexture0", 0);
+	shaders.setInt("ourTexture1", 1);
 
 	// rendering loop
 	while (!glfwWindowShouldClose(window))
@@ -159,25 +142,21 @@ int main()
 		// setting up clear screen stuff
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
-		// get the location of our uniform in the GPU
-		int vertexOffsetLocation = glGetUniformLocation(shaderProgram, "fOffset");
-		// use the created shaders
-		glUseProgram(shaderProgram);
-		// set the value of the uniform
-		glUniform1f(vertexOffsetLocation, .3f); // just throwing in .5 as a random value
-		// bind the VAO
-		glBindVertexArray(VAOQuiz1);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		// same as above
-		glUseProgram(shaderProgram1);
-		glBindVertexArray(VAOQuiz2);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//bind texture
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureBox);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, textureFace);
+		// draw stuff
+		glBindVertexArray(VAOBox);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+	glDeleteVertexArrays(1, &VAOBox);
+	glDeleteBuffers(1, &VBOBox);
+	glDeleteBuffers(1, &EBOBox);
 
 	glfwTerminate();
 	return 0;
