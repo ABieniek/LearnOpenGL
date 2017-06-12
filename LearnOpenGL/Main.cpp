@@ -8,6 +8,9 @@
 
 using namespace std;
 
+// global stuff
+float faceVisibility = .5;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
@@ -17,14 +20,25 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		if (faceVisibility < 1.0)
+			faceVisibility += .001;
+	}
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		if (faceVisibility > 0.0)
+			faceVisibility -= .001;
+	}
+
 }
 
 float verticesBox[] = {
 	// positions          // colors           // texture coords
-	0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-	0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+	0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   2.0f, 2.0f,   // top right
+	0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   2.0f, 0.0f,   // bottom right
 	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 2.0f    // top left 
 };
 
 unsigned int indicesBox[] = {
@@ -93,10 +107,10 @@ int main()
 	glGenTextures(1, &textureBox);
 	glBindTexture(GL_TEXTURE_2D, textureBox);
 	//set texture wrapping and filtering options of textureBox
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	// load image, creat texture, generate mipmaps
 	int widthBox, heightBox, nrChannelsBox;
 	unsigned char *dataBox = stbi_load("Textures\\container.png", &widthBox, &heightBox, &nrChannelsBox, 0);
@@ -138,6 +152,9 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
+
+		// changing the mix percentage through user input
+		shaders.setFloat("mixPercent", faceVisibility);
 
 		// setting up clear screen stuff
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
