@@ -3,6 +3,10 @@
 #include <iostream>
 #include "Shader.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -75,7 +79,7 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	/*	SHADER STUFF	*/
-	Shader shaders("Shaders\\TexturesLesson.vs",
+	Shader shaders("Shaders\\TransformationsLesson.vs",
 		"Shaders\\TexturesLesson.fs");
 
 	unsigned int VBOBox, VAOBox, EBOBox;
@@ -147,6 +151,14 @@ int main()
 	shaders.use();
 	shaders.setInt("ourTexture0", 0);
 	shaders.setInt("ourTexture1", 1);
+
+	// transformation stuff
+	glm::mat4 trans;
+	trans = glm::rotate(trans, glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+	trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+
+	unsigned int transformLoc = glGetUniformLocation(shaders.program, "transform");
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
 	// rendering loop
 	while (!glfwWindowShouldClose(window))
