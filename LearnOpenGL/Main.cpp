@@ -13,7 +13,7 @@
 using namespace std;
 
 // global stuff
-float faceVisibility = .5;
+double faceVisibility = .5;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -154,8 +154,9 @@ int main()
 
 	// transformation stuff
 	glm::mat4 trans;
-	trans = glm::rotate(trans, glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+	trans = glm::rotate(trans, glm::degrees(90.0f), glm::vec3(0.0, 0.0, 1.0));
+
 
 	unsigned int transformLoc = glGetUniformLocation(shaders.program, "transform");
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
@@ -166,7 +167,7 @@ int main()
 		processInput(window);
 
 		// changing the mix percentage through user input
-		shaders.setFloat("mixPercent", faceVisibility);
+		shaders.setFloat("mixPercent", (float) faceVisibility);
 
 		// setting up clear screen stuff
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -176,9 +177,22 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, textureBox);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, textureFace);
-		// draw stuff
 		glBindVertexArray(VAOBox);
+
+		// draw first thing
+		glm::mat4 transform;
+		transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		// draw second thing
+		glm::mat4 transform2;
+		float scale = sin((float)glfwGetTime());
+		transform2 = glm::scale(transform2, glm::vec3(scale, scale, scale));
+		transform2 = glm::translate(transform2, glm::vec3(0.5f, -0.5f, 0.0f));
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform2));
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

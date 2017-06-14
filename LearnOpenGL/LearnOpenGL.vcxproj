@@ -69,7 +69,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Alexyo234\Documents\Programming Stuff\C++ Libraries\Include Stuff\lib;C:\Users\Alexyo234\Documents\Programming Stuff\LearnOpenGL\LearnOpenGL\glad;C:\Users\Alexyo234\Documents\Programming Stuff\LearnOpenGL\LearnOpenGL\KHR;C:\Users\Alexyo234\Documents\Programming Stuff\C++ Libraries\glfw-3.2.1\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Alexyo234\Documents\Programming Stuff\C++ Libraries\glm-0.9.8.4;C:\Users\Alexyo234\Documents\Programming Stuff\C++ Libraries\Include Stuff\lib;C:\Users\Alexyo234\Documents\Programming Stuff\LearnOpenGL\LearnOpenGL\glad;C:\Users\Alexyo234\Documents\Programming Stuff\LearnOpenGL\LearnOpenGL\KHR;C:\Users\Alexyo234\Documents\Programming Stuff\C++ Libraries\glfw-3.2.1\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
