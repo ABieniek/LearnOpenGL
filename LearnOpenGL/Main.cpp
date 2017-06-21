@@ -13,7 +13,12 @@
 using namespace std;
 
 // global stuff
-double faceVisibility = .5;
+double xPos = 0;
+double yPos = 0;
+double zPos = 0;
+float SCREEN_WIDTH = 800;
+float SCREEN_HEIGHT = 600;
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -22,17 +27,38 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow* window)
 {
+	// escape
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	// left
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
-		if (faceVisibility < 1.0)
-			faceVisibility += .001;
+		xPos += .001;
 	}
+	// right
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		xPos -= .001;
+	}
+	// down
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		if (faceVisibility > 0.0)
-			faceVisibility -= .001;
+		yPos += .001;
+	}
+	// up
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		yPos -= .001;
+	}
+	// S
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		zPos -= .001;
+	}
+	// W
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		zPos += .001;
 	}
 
 }
@@ -74,13 +100,13 @@ int main()
 		return -1;
 	}
 
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	/*	SHADER STUFF	*/
-	Shader shaders("Shaders\\TransformationsLesson.vs",
-		"Shaders\\TexturesLesson.fs");
+	Shader shaders("Shaders\\CoordinateSystemsLesson.vs",
+		"Shaders\\CoordinateSystemsLesson.fs");
 
 	unsigned int VBOBox, VAOBox, EBOBox;
 	glGenVertexArrays(1, &VAOBox);
@@ -167,7 +193,7 @@ int main()
 		processInput(window);
 
 		// changing the mix percentage through user input
-		shaders.setFloat("mixPercent", (float) faceVisibility);
+		shaders.setFloat("mixPercent", .2);
 
 		// setting up clear screen stuff
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -177,22 +203,22 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, textureBox);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, textureFace);
+
+		// set up transformations
+		glm::mat4 model;
+		glm::mat4 view;
+		glm::mat4 projection;
+		model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		// retrieve matrix uniform locations
+		view = glm::translate(view, glm::vec3(xPos, yPos, zPos));
+		projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+		
+		shaders.setMat4("model", model);
+		shaders.setMat4("view", view);
+		shaders.setMat4("projection", projection);
+
 		glBindVertexArray(VAOBox);
-
-		// draw first thing
-		glm::mat4 transform;
-		transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-		transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		// draw second thing
-		glm::mat4 transform2;
-		float scale = sin((float)glfwGetTime());
-		transform2 = glm::scale(transform2, glm::vec3(scale, scale, scale));
-		transform2 = glm::translate(transform2, glm::vec3(0.5f, -0.5f, 0.0f));
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform2));
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
