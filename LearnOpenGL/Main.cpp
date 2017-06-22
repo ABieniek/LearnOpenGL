@@ -16,8 +16,9 @@ using namespace std;
 double xPos = 0.0;
 double yPos = 0.0;
 double zPos = -3.0;
-float xRot = -55.0;
-float yRot = 45.0;
+float xRot = 0.0;
+float yRot = 0.0;
+float zRot = 0.0;
 float SCREEN_WIDTH = 800;
 float SCREEN_HEIGHT = 600;
 
@@ -57,12 +58,14 @@ void processInput(GLFWwindow* window)
 		yPos += .001;
 	}
 	// S
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS
+		&& glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
 		zPos -= .001;
 	}
 	// W
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS
+		&& glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		zPos += .001;
 	}
@@ -78,7 +81,7 @@ void processInput(GLFWwindow* window)
 	{
 		yRot += .1f;
 	}
-	/*// LALT + LEFT
+	// LALT + LEFT
 	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS
 		&& glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
@@ -89,7 +92,19 @@ void processInput(GLFWwindow* window)
 		&& glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
 		xRot += .1f;
-	}*/
+	}
+	// LALT + S
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS
+		&& glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		zRot -= .1f;
+	}
+	// LALT + W
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS
+		&& glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		zRot += .1f;
+	}
 }
 
 float verticesBox[] = {
@@ -237,7 +252,9 @@ int main()
 		glm::mat4 model;
 		glm::mat4 view;
 		glm::mat4 projection;
-		model = glm::rotate(model, glm::radians((float) yRot), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians((float) yRot), glm::vec3(1.0f, 0.0f, 0.0f)); // the final argument determines axis of rotation, somehow
+		model = glm::rotate(model, glm::radians((float) xRot), glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, glm::radians((float) zRot), glm::vec3(0.0f, 1.0f, 0.0f));
 		// retrieve matrix uniform locations
 		view = glm::translate(view, glm::vec3(xPos, yPos, zPos));
 		projection = glm::perspective(glm::radians((float) -55.0), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
