@@ -13,9 +13,11 @@
 using namespace std;
 
 // global stuff
-double xPos = 0;
-double yPos = 0;
-double zPos = 0;
+double xPos = 0.0;
+double yPos = 0.0;
+double zPos = -3.0;
+float xRot = -55.0;
+float yRot = 45.0;
 float SCREEN_WIDTH = 800;
 float SCREEN_HEIGHT = 600;
 
@@ -31,24 +33,28 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	// left
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		xPos += .001;
-	}
-	// right
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS
+		&& glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
 		xPos -= .001;
 	}
-	// down
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	// right
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS
+		&& glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
-		yPos += .001;
+		xPos += .001;
 	}
-	// up
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	// down
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS
+		&& glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
 		yPos -= .001;
+	}
+	// up
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS
+		&& glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		yPos += .001;
 	}
 	// S
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -60,7 +66,30 @@ void processInput(GLFWwindow* window)
 	{
 		zPos += .001;
 	}
-
+	// LALT + DOWN
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS
+		&& glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		yRot -= .1f;
+	}
+	// LALT + UP
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS
+		&& glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		yRot += .1f;
+	}
+	/*// LALT + LEFT
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS
+		&& glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		xRot -= .1f;
+	}
+	// LALT + RIGHT
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS
+		&& glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		xRot += .1f;
+	}*/
 }
 
 float verticesBox[] = {
@@ -208,10 +237,10 @@ int main()
 		glm::mat4 model;
 		glm::mat4 view;
 		glm::mat4 projection;
-		model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians((float) yRot), glm::vec3(1.0f, 0.0f, 0.0f));
 		// retrieve matrix uniform locations
 		view = glm::translate(view, glm::vec3(xPos, yPos, zPos));
-		projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians((float) -55.0), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 		
 		shaders.setMat4("model", model);
 		shaders.setMat4("view", view);
