@@ -1,11 +1,14 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <iostream>
+#include <vector>
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <vector>
+using namespace std;
 
 enum CameraMovement
 {
@@ -124,6 +127,8 @@ private:
 		// recalculate right and up vectors
 		right = glm::normalize(glm::cross(front, worldUp));
 		up = glm::normalize(glm::cross(right, front));
+
+		cout << position.x << ' ' << position.y << ' ' << position.z << endl;
 	}
 };
 
