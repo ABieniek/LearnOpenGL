@@ -128,7 +128,7 @@ private:
 		right = glm::normalize(glm::cross(front, worldUp));
 		up = glm::normalize(glm::cross(right, front));
 
-		cout << position.x << ' ' << position.y << ' ' << position.z << endl;
+		// cout << position.x << ' ' << position.y << ' ' << position.z << endl;
 	}
 };
 

@@ -176,10 +176,8 @@ int main()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glm::vec3 lightPos(1.2f, 1.0f, 0.5f);
-
 	Shader lightingShader("Shaders\\BasicLightingLesson.vs",
-		"Shaders\\BasicLightingLesson.fs");
+		"Shaders\\MaterialsLesson.fs");
 
 	Shader lampShader("Shaders\\ColorsLesson.vs",
 		"Shaders\\ColorsLessonSources.fs");
@@ -193,6 +191,8 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+		glm::vec3 lightPos(sin(currentFrame) + .5f, 2.0f, 1.5f);
+
 		processInput(window);
 
 		// setting up clear screen stuff
@@ -200,9 +200,18 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		lightingShader.use();
-		lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-		lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-		lightingShader.setVec3("lightPos", lightPos);
+		// material properties
+		lightingShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+		lightingShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+		lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
+		lightingShader.setFloat("material.shininess", 32.0f);
+
+
+		lightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+		lightingShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken the light a bit to fit the scene
+		lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+		lightingShader.setVec3("light.position", lightPos);
 		lightingShader.setVec3("viewPos", camera.position);
 
 		// set up transformations
