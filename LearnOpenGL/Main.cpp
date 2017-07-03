@@ -10,6 +10,7 @@
 #include "stb_image.h"
 #include "Shader.h"
 #include "Camera.h"
+#include "Mesh.h"
 
 using namespace std;
 

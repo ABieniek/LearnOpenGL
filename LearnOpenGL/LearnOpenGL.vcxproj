@@ -69,7 +69,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Alexyo234\Documents\Programming Stuff\C++ Libraries\glm-0.9.8.4;C:\Users\Alexyo234\Documents\Programming Stuff\C++ Libraries\Include Stuff\lib;C:\Users\Alexyo234\Documents\Programming Stuff\LearnOpenGL\LearnOpenGL\glad;C:\Users\Alexyo234\Documents\Programming Stuff\LearnOpenGL\LearnOpenGL\KHR;C:\Users\Alexyo234\Documents\Programming Stuff\C++ Libraries\glfw-3.2.1\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Alexyo234\Documents\Programming Stuff\C++ Libraries\assimp-3.3.1\include;C:\Users\Alexyo234\Documents\Programming Stuff\C++ Libraries\glm-0.9.8.4;C:\Users\Alexyo234\Documents\Programming Stuff\C++ Libraries\Include Stuff\lib;C:\Users\Alexyo234\Documents\Programming Stuff\LearnOpenGL\LearnOpenGL\glad;C:\Users\Alexyo234\Documents\Programming Stuff\LearnOpenGL\LearnOpenGL\KHR;C:\Users\Alexyo234\Documents\Programming Stuff\C++ Libraries\glfw-3.2.1\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -78,7 +78,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc140-mt.lib;opengl32.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -121,6 +121,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
