@@ -15,7 +15,9 @@ enum CameraMovement
 	FORWARD,
 	BACKWARD,
 	LEFT,
-	RIGHT
+	RIGHT,
+	UP,
+	DOWN
 };
 
 // default camera values
@@ -86,6 +88,10 @@ public:
 			position -= right * velocity;
 		if (direction == RIGHT)
 			position += right * velocity;
+		if (direction == UP)
+			position.y += velocity;
+		if (direction == DOWN)
+			position.y -= velocity;
 	}
 	// function to process mouse input
 	void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
@@ -102,7 +108,7 @@ public:
 			if (pitch > 89.0f)
 				pitch = 89.0f;
 			if (pitch < -89.0f)
-				pitch = 89.0f;
+				pitch = -89.0f;
 		}
 		updateCameraVectors();
 	}
