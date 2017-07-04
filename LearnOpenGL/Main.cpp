@@ -6,11 +6,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 #include "Shader.h"
 #include "Camera.h"
-#include "Mesh.h"
+#include "Model.h"
 
 using namespace std;
 
@@ -253,6 +251,9 @@ int main()
 
 	unsigned int diffuseMap = loadTexture("Textures/container2.png");
 	unsigned int specularMap = loadTexture("Textures/container2_specular.png");
+
+	// model stuff
+	Model model("Textures\\Nanosuit\\nanosuit.obj", false);
 
 	// rendering loop
 	while (!glfwWindowShouldClose(window))
