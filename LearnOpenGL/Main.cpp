@@ -108,10 +108,9 @@ int main()
 	}
 	// Shader
 	Shader shader("Shaders/ModelLoadingLesson.vs", "Shaders/ModelLoadingLesson.fs");
+	Shader shaderSingleColor("Shaders/ModelLoadingLesson.vs", "Shaders/StencilTestingLesson.fs");
 	// Model
 	Model modelNanosuit("Models/Nanosuit/nanosuit.obj");
-
-	glEnable(GL_DEPTH_TEST);
 
 	// rendering loop
 	while (!glfwWindowShouldClose(window))
@@ -129,31 +128,41 @@ int main()
 		// render
 		// ------
 		glClearColor(0.3f, 0.2f, 0.4f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// be sure to activate shader when setting uniforms/drawing objects
-		shader.use();
 
 		// view/projection transformations
 		glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.getViewMatrix();
+		glm::mat4 model = glm::mat4();
+
+		// stencil testing - outline
+		glEnable(GL_DEPTH_TEST);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		// drawing initial dudes
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0xFF);
+		shader.use();		
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
-
-		// world transformation & rendering loaded model
-		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 		shader.setMat4("model", model);
 		modelNanosuit.Draw(shader);
 
-		for (int i = 0; i < 100; i++)
-		{
-			model = glm::translate(model, glm::vec3(7.5f, .5f, 0.0f));
-			shader.setMat4("model", model);
-			modelNanosuit.Draw(shader);
-		}
-		
+		//drawing outlines
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+		glDisable(GL_DEPTH_TEST);
+		shaderSingleColor.use();
+		shaderSingleColor.setMat4("projection", projection);
+		shaderSingleColor.setMat4("view", view);
+		model = glm::mat4();
+		model = glm::scale(model, glm::vec3(.22f, .22f, .22f));
+		shaderSingleColor.setMat4("model", model);
+		modelNanosuit.Draw(shaderSingleColor);
+
+		glStencilMask(0xFF);
+		glEnable(GL_DEPTH_TEST);
 
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
